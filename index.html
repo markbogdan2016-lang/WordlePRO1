@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Wordle PRO</title>
+
+<style>
+body{
+    background:#121213;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+}
+
+h1{
+    font-size:45px;
+}
+
+#info{
+    margin:10px;
+}
+
+#board{
+    display:grid;
+    grid-template-columns:repeat(5,65px);
+    gap:8px;
+    justify-content:center;
+    margin:20px;
+}
+
+.tile{
+    width:65px;
+    height:65px;
+    border:2px solid #555;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:35px;
+    font-weight:bold;
+}
+
+.green{
+    background:#538d4e;
+}
+
+.yellow{
+    background:#b59f3b;
+}
+
+.gray{
+    background:#3a3a3c;
+}
+
+.keyboard{
+    max-width:650px;
+    margin:auto;
+}
+
+button{
+    margin:3px;
+    padding:12px;
+    border-radius:6px;
+    border:0;
+    background:#818384;
+    color:white;
+    font-weight:bold;
+}
+
+button:hover{
+    background:#aaa;
+}
+
+.big{
+    width:90px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>WORDLE PRO</h1>
+
+<div id="info">
+Попытка 1 из 6
+</div>
+
+<div id="board"></div>
+
+<div class="keyboard" id="keyboard"></div>
+
+<button onclick="restart()">Новая игра</button>
+<script>
+
+const words = [
+"КОШКА",
+"КНИГА",
+"ШКОЛА",
+"ИГРАЯ",
+"СЛОВО",
+"ЛАМПА",
+"КАЗАН",
+"НОКТИ",
+"ОТЕЛЬ",
+"БОЧКА",
+"ГАЗАН",
+"СЛОВО",
+"ВЕСНА",
+"РЫБКА",
+"СПОРТ",
+"ЗАМОК",
+"ЛИСТЬ",
+"ПТИЦА",
+"ЗЕМЛЯ",
+"НОЧКА",
+"МАМКА",
+"ПАПКА"
+];
+
+let answer = words[Math.floor(Math.random()*words.length)];
+
+let row = 0;
+let col = 0;
+let current = "";
+
+const letters = "ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ";
+
+const board = document.getElementById("board");
+
+for(let i=0;i<30;i++){
+    let tile=document.createElement("div");
+    tile.className="tile";
+    board.appendChild(tile);
+}
+
+
+// экранная клавиатура
+
+const keyboard=document.getElementById("keyboard");
+
+letters.split("").forEach(letter=>{
+
+    let btn=document.createElement("button");
+    btn.textContent=letter;
+
+    btn.onclick=()=>{
+        press(letter);
+    };
+
+    keyboard.appendChild(btn);
+
+});
+
+
+let enter=document.createElement("button");
+enter.textContent="ENTER";
+enter.className="big";
+enter.onclick=check;
+keyboard.appendChild(enter);
+
+
+let back=document.createElement("button");
+back.textContent="⌫";
+back.onclick=del;
+keyboard.appendChild(back);
+
+
+
+// КЛАВИАТУРА КОМПЬЮТЕРА
+
+document.addEventListener("keydown",function(e){
+
+    let key=e.key.toUpperCase();
+
+    if(key.length===1 && letters.includes(key)){
+        press(key);
+    }
+
+    if(e.key==="Enter"){
+        check();
+    }
+
+    if(e.key==="Backspace"){
+        del();
+    }
+
+});
+
+
+
+function press(letter){
+
+    if(col<5){
+
+        let tile=document.querySelectorAll(".tile")[row*5+col];
+
+        tile.textContent=letter;
+
+        current+=letter;
+
+        col++;
+    }
+
+}
+
+
+
+function del(){
+
+    if(col>0){
+
+        col--;
+
+        current=current.slice(0,-1);
+
+        document.querySelectorAll(".tile")[row*5+col].textContent="";
+    }
+
+}
+
+
+
+function check(){
+
+    if(col!==5){
+        return;
+    }
+
+
+    let tiles=document.querySelectorAll(".tile");
+
+
+    for(let i=0;i<5;i++){
+
+        let tile=tiles[row*5+i];
+
+
+        if(current[i]===answer[i]){
+
+            tile.classList.add("green");
+
+        }
+
+        else if(answer.includes(current[i])){
+
+            tile.classList.add("yellow");
+
+        }
+
+        else{
+
+            tile.classList.add("gray");
+
+        }
+
+    }
+
+
+    if(current===answer){
+
+        setTimeout(()=>{
+            alert("🎉 Победа!");
+        },300);
+
+        return;
+    }
+
+
+    row++;
+    col=0;
+    current="";
+
+
+    document.getElementById("info").textContent=
+    "Попытка "+(row+1)+" из 6";
+
+
+    if(row===6){
+
+        setTimeout(()=>{
+            alert("Ответ был: "+answer);
+        },300);
+
+    }
+
+}
+
+
+
+function restart(){
+
+    location.reload();
+
+}
+
+
+</script>
+
+</body>
+</html>
